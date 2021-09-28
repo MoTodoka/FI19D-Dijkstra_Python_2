@@ -1,5 +1,8 @@
 from __future__ import annotations
 from typing import Optional
+from collections import namedtuple
+from dataclasses import dataclass
+import math
 
 #            A, B, C, D, E, F, G, H, I
 adjacent = ((0, 3, 0, 9, 2, 0, 0, 0, 0),  # A
@@ -19,10 +22,25 @@ class MalformedGraphException(Exception):
     pass
 
 
+@dataclass
+class Edge:
+    node_start: Node
+    node_target: Node
+    weight: int
+
+    def try_update_target(self) -> None:
+        if not self.node_target.has_parent or self.node_start.weight + self.weight < self.node_target.weight:
+            self.node_target._parent = self.node_start
+            total_weight: int = self.weight
+            if self.node_start != self.node_target:
+                total_weight += self.node_start.weight
+            self.node_target._weight = total_weight
+
+
 class Node:
     _index: int
     _parent: Optional[Node] = None
-    _weight: int = 0
+    _weight: int = math.inf
     _visited: bool = False
 
     def __init__(self, index):
@@ -45,16 +63,14 @@ class Node:
         return self._visited
 
     @property
-    def has_path(self) -> bool:
+    def has_parent(self) -> bool:
         return self._parent is not None
 
-    def try_update_parent(self, new_parent: Node, edge_weight: int) -> None:
-        if not self.has_path or new_parent.weight + edge_weight < self.weight:
-            self._parent = new_parent
-            self._weight = new_parent.weight + edge_weight
+    def set_as_visited(self) -> None:
+        self._visited = True
 
     def __str__(self) -> str:
-        return f"Node[{self.index}, w={self.weight if self.has_path else 'inf'}, p={self.parent.index if self.has_path else 'None'}]"
+        return f"Node[{self.index} ({get_label_from_index(self.index)}), w={self.weight}, p={self.parent.index if self.has_parent else 'None'}]"
 
     def __repr__(self) -> str:
         return str(self)
@@ -67,6 +83,7 @@ def verify_matrix(matrix):
     if any(adjacent[i][i] for i in range(node_count)):
         raise MalformedGraphException("not all self referencing node are zero")
 
+
 def get_label_from_index(index: int):
     return chr(index + ord('A'))
 
@@ -74,14 +91,46 @@ def get_label_from_index(index: int):
 def get_index_from_label(label: chr):
     return ord(label) - ord('A')
 
+
 def get_next_node(nodes: list[Node]) -> Optional[None]:
     return None
-    
-def get_adjacent_nodes(adjacency_matrix: [[int]], node: Node):
-    nodes: list[Node] = list()
-    node_idx = Node.index
-    #for idx in range 
-    
+
+    # du brauchst ein Node und ein Gewicht
+    # deshalb habe ich das namedtuple Edge erstellt (siehe über Node)
+    # also e = Edge(node, weight); e.weight/e.node :-)
+
+
+def get_adjacent_edges(adjacency_matrix: [[int]], nodes: [Node], node: Node) -> list[Edge]:
+    result: list[Edge] = list()
+    for idx, edge_weight in enumerate(adjacency_matrix[node.index]):
+        if edge_weight > 0:
+            result.append(Edge(node, nodes[idx], edge_weight))
+    return result
+
+
+def print_nodes(nodes: list[Node], info: str = "") -> None:
+    if info:
+        info = f" ({info})"
+    info = f"Current nodes{info}:"
+    print(info)
+    for idx, node in enumerate(nodes):
+        print(
+            f"  {idx} ({get_label_from_index(idx)}) -> w={node.weight!r} p={node.parent!r} hp={node.has_parent!r} iv={node.visited!r}")
+    print("=" * len(info))
+
+
+def print_path(end_node: Node) -> None:
+    n: Node = end_node
+    step: int = 0
+    print(f"Path to #{end_node.index}")
+    while n is not None:
+        print(f"\t{step}: #{n.index}")
+        n = n.parent
+        step += 1
+        if n is not None and n == n.parent:
+            break
+    print()
+
 
 def get_path(matrix: [[int]], start: str, ziel: str):
     idx_start: int = get_index_from_label(start)
@@ -89,24 +138,42 @@ def get_path(matrix: [[int]], start: str, ziel: str):
     print(f"Try to find path from {start} ({idx_start}) to {ziel} ({idx_end})")
 
     verify_matrix(matrix)
-    #if not verify_matrix(matrix):
+    # if not verify_matrix(matrix):
     #    raise Exception("")
 
     node_count: int = len(matrix)
 
     # nodes array
-    # "parent", "weight", "visited"
-    nodes = [Node(i) for i in range(node_count)]
-    nodes[idx_start].try_update_parent(nodes[idx_start], 0)
+    nodes: [Node] = [Node(i) for i in range(node_count)]
+    # Node-list as a map for the index, so that sorting won't kill the relationship between index and Node
+    # node_map: {int, Node} = {node.index: node for node in nodes}
+    Edge(nodes[idx_start], nodes[idx_start], 0).try_update_target()
 
-    for idx, node in enumerate(nodes):
-        print(f"{idx} -> {node.weight!r} {node.parent!r} {node.has_path!r} {node.visited!r}")
+    current_node: Node = nodes[idx_start]
+    for edge in get_adjacent_edges(matrix, nodes, current_node):
+        edge.try_update_target()
+    current_node.set_as_visited()
 
-    nodes.sort(key=lambda x: x.weight, reverse=False)
+    # niedriges Gewicht, nicht besucht, hat eltern
+
+    print_nodes(nodes)
+
+    node = min((node for node in nodes if node.has_parent and not node.visited), key=lambda n: n.weight)
+
+    print(f"Min: {node}")
+
+    # nur zum testen wie sich Edge verhält
+    # GH: Müsste eine Edge nicht 2 Nodes enthalten? Start -> Ziel
+    e: Edge = Edge(nodes[idx_start], nodes[idx_start], 42)
+    print(e)
+
+    print_path(nodes[idx_start])
+    print_path(nodes[idx_end])
 
     return True
 
+
 if __name__ == "__main__":
     print(get_path(adjacent, start, ziel))
-    
-    print("here ya' go")
+
+    print('here ya go')
