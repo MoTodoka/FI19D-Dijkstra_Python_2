@@ -1,0 +1,2 @@
+class MalformedGraphException(Exception):
+    pass

@@ -1,0 +1,8 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+
+/log/
+
+*.py[cod]
+__pycache__/
