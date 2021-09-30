@@ -1,7 +1,8 @@
 import json
 from collections import defaultdict
 
-from main.python.MalformedGraphException import MalformedGraphException
+from MalformedGraphException import MalformedGraphException
+import graph
 
 
 def read_json_node(filename: str) -> [[int]]:
@@ -21,17 +22,17 @@ def read_json_node(filename: str) -> [[int]]:
     return matrix
 
 
-def read_json_eve(filename: str) -> [[int]]:
+def read_json_eve(filename: str) -> graph.Graph:
     with open(filename, "r") as f:
         node_vertices = json.load(f)
 
-    node_count = len(node_vertices["solarSystems"])
-    matrix: [[int]] = []
-    node_ids = [node["id"] for node in node_vertices["solarSystems"]]
-    node_id_map = {node_id: idx for idx, node_id in enumerate(node_ids)}
-    edges = defaultdict(list)
+    nodes = [graph.GraphNode(node["id"], node["name"]) for node in node_vertices["solarSystems"]]
+    node_map = {node.index: node for node in nodes}
+    edges: [graph.GraphEdge] = []
     for jump in node_vertices["jumps"]:
-        edges[jump["from"]].append(jump["to"])
+        edges.append(graph.GraphEdge(node_map[jump["from"]], node_map[jump["to"]], 1))
+
+    return graph.Graph(nodes, edges)
 
 
 def read_csv_adjacent(filename: str) -> [[int]]:

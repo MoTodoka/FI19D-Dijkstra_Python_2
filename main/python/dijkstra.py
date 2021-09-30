@@ -6,7 +6,8 @@ from dataclasses import dataclass
 import math
 import logging
 
-from main.python.MalformedGraphException import MalformedGraphException
+from MalformedGraphException import MalformedGraphException
+from graph import Graph, GraphNode, GraphEdge
 
 LOGGER = logging.getLogger("dijkstra")
 
@@ -27,21 +28,21 @@ class Edge:
 
 
 class Node:
-    _index: int
     _parent: Optional[Node] = None
     _weight: int = math.inf
     _visited: bool = False
+    _graph_node: GraphNode
 
-    def __init__(self, index):
-        self._index = index
+    def __init__(self, graph_node: GraphNode):
+        self._graph_node = graph_node
 
     @property
     def index(self) -> int:
-        return self._index
+        return self._graph_node.index
 
     @property
     def label(self) -> str:
-        return Node.get_label_from_index(self.index)
+        return self._graph_node.label
 
     @property
     def parent(self) -> Optional[Node]:
@@ -59,6 +60,10 @@ class Node:
     def has_parent(self) -> bool:
         return self._parent is not None
 
+    @property
+    def graph_node(self) -> GraphNode:
+        return self._graph_node
+
     def set_as_visited(self) -> None:
         self._visited = True
 
@@ -69,10 +74,6 @@ class Node:
 
     def __repr__(self) -> str:
         return str(self)
-
-    @staticmethod
-    def get_label_from_index(index: int):
-        return chr(index + ord('A'))
 
     @staticmethod
     def get_index_from_label(label: chr):
@@ -137,26 +138,27 @@ def path_iterator(node: Node) -> typing.Iterator[Node]:
         node = node.parent
 
 
-def get_path(matrix: [[int]], start: chr, destination: chr) -> [Node]:
-    idx_start: int = Node.get_index_from_label(start)
-    idx_end: int = Node.get_index_from_label(destination)
-    LOGGER.info(f"Try to find path from {start} ({idx_start}) to {destination} ({idx_end})")
-
-    node_count: int = len(matrix)
-
+def get_path(graph: Graph, start: str, destination: str) -> [Node]:
     # nodes array
-    nodes: [Node] = [Node(i) for i in range(node_count)]
-    # Node-list as a map for the index, so that sorting won't kill the relationship between index and Node
-    # node_map: {int, Node} = {node.index: node for node in nodes}
-    Edge(nodes[idx_start], nodes[idx_start], 0).try_update_target()
+    nodes: [Node] = [Node(graph_node) for graph_node in graph.nodes]
+    node_map: {GraphNode, Node} = {node.graph_node: node for node in nodes}
+    start_node: GraphNode = graph.node_from_label(start)
+    destination_node: GraphNode = graph.node_from_label(destination)
+    LOGGER.info(f"Try to find path from {start} ({start_node.index}) to {destination} ({destination_node.index})")
 
-    current_node: Node = nodes[idx_start]
+    start_node: Node = node_map[start_node]
+    destination_node: Node = node_map[destination_node]
+    Edge(start_node, start_node, 0).try_update_target()
+
+    current_node: Node = start_node
     while current_node is not None:
         current_node.set_as_visited()
-        if current_node.index == idx_end:
+        if current_node == destination_node:
             break
-        for edge in get_adjacent_edges(matrix, nodes, current_node):
-            edge.try_update_target()
+        for graph_edge in graph.get_adjacent_edges(current_node.graph_node):
+            node_start: Node = node_map[graph_edge.start_node]
+            node_end: Node = node_map[graph_edge.end_node]
+            Edge(node_start, node_end, graph_edge.weight).try_update_target()
 
         LOGGER.debug(print_nodes(nodes))
 
@@ -165,23 +167,21 @@ def get_path(matrix: [[int]], start: chr, destination: chr) -> [Node]:
 
         LOGGER.info(f"next_node: {current_node}")
 
-    # nur zum testen wie sich Edge verhält
-    # GH: Müsste eine Edge nicht 2 Nodes enthalten? Start -> Ziel
-    edge: Edge = Edge(nodes[idx_start], nodes[idx_start], 42)
-    LOGGER.info(edge)
-
-    path: [Node] = list(path_iterator(nodes[idx_end]))
+    path: [Node] = list(path_iterator(destination_node))
     path.reverse()
 
     return path
 
 
-def calculate(matrix: [[int]], start: chr, destination: chr):
-    try:
-        verify_matrix(matrix)
-    except MalformedGraphException as e:
-        print(str(e))
-    else:
-        path: [Node] = get_path(matrix, start, destination)
-        path_string: str = get_path_string(path)
-        print(path_string)
+def calculate(graph: typing.Union[list[list[int]], Graph], start: str, destination: str):
+    if not isinstance(graph, Graph):
+        try:
+            verify_matrix(graph)
+        except MalformedGraphException as e:
+            print(str(e))
+            return
+        else:
+            graph = Graph.from_adjacent_matrix(graph)
+    path: [Node] = get_path(graph, start, destination)
+    path_string: str = get_path_string(path)
+    print(path_string)
