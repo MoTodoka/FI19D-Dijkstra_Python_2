@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-import typing
-from typing import Optional
-from dataclasses import dataclass
-import math
 import logging
+import math
+import typing
+from dataclasses import dataclass
+from typing import Optional
 
 from MalformedGraphException import MalformedGraphException
-from graph import Graph, GraphNode, GraphEdge
+from graph import GraphNode, Graph
 
-LOGGER = logging.getLogger("dijkstra")
+LOGGER = logging.getLogger("root")
 
 
 @dataclass
@@ -173,12 +173,12 @@ def get_path(graph: Graph, start: str, destination: str) -> [Node]:
     return path
 
 
-def calculate(graph: typing.Union[list[list[int]], Graph], start: str, destination: str):
+def print_path(graph: typing.Union[list[list[int]], Graph], start: str, destination: str):
     if not isinstance(graph, Graph):
         try:
             verify_matrix(graph)
         except MalformedGraphException as e:
-            print(str(e))
+            LOGGER.error(str(e))
             return
         else:
             graph = Graph.from_adjacent_matrix(graph)

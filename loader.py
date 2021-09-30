@@ -1,8 +1,6 @@
 import json
-from collections import defaultdict
-
-from MalformedGraphException import MalformedGraphException
 import graph
+from MalformedGraphException import MalformedGraphException
 
 
 def read_json_node(filename: str) -> [[int]]:
