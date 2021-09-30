@@ -2,7 +2,7 @@
 /shelf/
 /workspace.xml
 
-/log/
+/log/*.log
 /.idea/
 
 *.py[cod]

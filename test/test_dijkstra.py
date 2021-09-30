@@ -1,11 +1,11 @@
 import unittest
 
-from main.python import dijkstra, logging_config
+import dijkstra
+from graph import Graph
 
 
 class MyTestCase(unittest.TestCase):
     def test_process_matrix(self):
-        logging_config.load_config()
         # given
         # A, B, C, D, E, F, G, H, I
         matrix: [[int]] = ((0, 3, 0, 9, 2, 0, 0, 0, 0),  # A
@@ -23,7 +23,8 @@ class MyTestCase(unittest.TestCase):
         expected_path: [chr] = ['A', 'E', 'F', 'H']
 
         # when
-        node_path: [dijkstra.Node] = dijkstra.get_path(matrix, start, destination)
+        graph: [[int]] = Graph.from_adjacent_matrix(matrix)
+        node_path: [dijkstra.Node] = dijkstra.get_path(graph, start, destination)
 
         actual_path: [chr] = [node.label for node in node_path]
 
