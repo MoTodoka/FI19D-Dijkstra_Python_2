@@ -68,7 +68,7 @@ class Node:
         self._visited = True
 
     def __str__(self) -> str:
-        return f"Node[{self.index} ({self.label}), " \
+        return f"Node[{self.graph_node.name}, " \
                f"w={self.weight}, " \
                f"p={self.parent.index if self.has_parent else 'None'}]"
 
@@ -115,7 +115,7 @@ def print_nodes(nodes: [Node], info: str = "") -> str:
     info = f"Current nodes{info}:"
     longest_line = len(info)
     for node in nodes:
-        line = f"  {node.index} ({node.label}) -> " \
+        line = f"  {node.graph_node.name} -> " \
                f"w={node.weight!r} " \
                f"p={node.parent!r} " \
                f"hp={node.has_parent!r} " \
@@ -129,7 +129,7 @@ def print_nodes(nodes: [Node], info: str = "") -> str:
 def get_path_string(path: [Node]) -> str:
     result: str = ""
     for step, node in enumerate(path):
-        result += f"\n Step: {step} | Node: #{node.index} ({node.label}), weight: {node.weight}"
+        result += f"\n Step: {step} | Node: {node.graph_node.name}, weight: {node.weight}"
     return result
 
 

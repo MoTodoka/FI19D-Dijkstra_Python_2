@@ -56,6 +56,10 @@ class GraphNode:
     def get_label_from_index(index: int):
         return chr(index + ord('A'))
 
+    @property
+    def name(self) -> str:
+        return f"{self.label} ({self.index})"
+
 
 @dataclass(frozen=True)
 class GraphEdge:
