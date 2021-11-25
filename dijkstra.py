@@ -129,7 +129,7 @@ def print_nodes(nodes: [Node], info: str = "") -> str:
 def get_path_string(path: [Node]) -> str:
     result: str = ""
     for step, node in enumerate(path):
-        result += f"\n Step: {step} | Node: #{node.index} ({node.label})"
+        result += f"\n Step: {step} | Node: #{node.index} ({node.label}), weight: {node.weight}"
     return result
 
 
