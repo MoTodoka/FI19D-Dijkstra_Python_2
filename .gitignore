@@ -3,6 +3,7 @@
 /workspace.xml
 
 /log/*.log
+/log/log.conf
 /.idea/
 
 *.py[cod]
