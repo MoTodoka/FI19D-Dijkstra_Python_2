@@ -1,6 +1,8 @@
 import logging
 import argparse
 import os
+import typing
+from enum import Enum, auto
 
 from logging import config
 
@@ -20,6 +22,10 @@ if __name__ == "__main__":
                            help="Determines the type of the file",
                            choices=["csv", "eve", "json", "fileaware"],
                            default="fileaware")
+    node_table_group = argparser.add_mutually_exclusive_group()
+    node_table_group.add_argument("-n", "--print-visited-nodes", action="store_true")
+    node_table_group.add_argument("--print-nodes-with-parents", action="store_true")
+    node_table_group.add_argument("-N", "--print-all-nodes", action="store_true")
 
     args = argparser.parse_args()
 
@@ -51,4 +57,14 @@ if __name__ == "__main__":
     start = args.start
     destination = args.destination
 
-    dijkstra.print_path(graph, start, destination)
+    show_visited: dijkstra.PrintNodesMode
+    if args.print_visited_nodes:
+        show_visited = dijkstra.PrintNodesMode.VISITED
+    elif args.print_nodes_with_parents:
+        show_visited = dijkstra.PrintNodesMode.HAS_PARENT
+    elif args.print_all_nodes:
+        show_visited = dijkstra.PrintNodesMode.ALL
+    else:
+        show_visited = dijkstra.PrintNodesMode.NONE
+
+    dijkstra.print_path(graph, start, destination, show_visited)

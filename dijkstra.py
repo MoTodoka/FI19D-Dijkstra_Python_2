@@ -1,106 +1,30 @@
 from __future__ import annotations
 
 import logging
-import math
 import typing
-from dataclasses import dataclass
-from typing import Optional
+from enum import auto, Enum
 
 from MalformedGraphException import MalformedGraphException
-from graph import GraphNode, Graph
+from graph import Graph
+from weighted_node import Node
+from solver import Solver
 
 LOGGER = logging.getLogger("root")
 
 
-class Node:
-    _parent: Optional[Node] = None
-    _weight: int = math.inf
-    _visited: bool = False
-    _graph_node: GraphNode
+class PrintNodesMode(Enum):
+    NONE = auto()
+    VISITED = auto()
+    HAS_PARENT = auto()
+    ALL = auto()
 
-    def __init__(self, graph_node: GraphNode):
-        self._graph_node = graph_node
-
-    @property
-    def index(self) -> int:
-        return self._graph_node.index
-
-    @property
-    def label(self) -> str:
-        return self._graph_node.label
-
-    @property
-    def parent(self) -> Optional[Node]:
-        return self._parent
-
-    @property
-    def weight(self) -> int:
-        return self._weight
-
-    @property
-    def visited(self) -> bool:
-        return self._visited
-
-    @property
-    def has_parent(self) -> bool:
-        return self._parent is not None
-
-    @property
-    def graph_node(self) -> GraphNode:
-        return self._graph_node
-
-    def set_as_visited(self) -> None:
-        self._visited = True
-
-    def __str__(self) -> str:
-        return f"Node[{self.graph_node.name}, " \
-               f"w={self.weight}, " \
-               f"p={self.parent.index if self.has_parent else 'None'}]"
-
-    def __repr__(self) -> str:
-        return str(self)
-
-    def try_update_target(self, node_start: Node, weight: int) -> None:
-        if not self.has_parent or node_start.weight + weight < self.weight:
-            self._parent = node_start
-            total_weight: int = weight
-            if node_start != self:
-                total_weight += node_start.weight
-            self._weight = total_weight
-
-    @staticmethod
-    def get_index_from_label(label: chr):
-        return ord(label) - ord('A')
-
-
-class UnnamedNode(Node):
-    pass
-
-
-def get_next_node(nodes: list[Node]) -> Optional[Node]:
-    filtered_node_generator = (node for node in nodes if node.has_parent and not node.visited)
-    try:
-        return min(filtered_node_generator, key=lambda n: n.weight)
-    except ValueError:
-        # Returned, when the generator is empty
-        return None
-
-
-def print_nodes(nodes: [Node], info: str = "") -> str:
-    if info:
-        info = f" ({info})"
-    info = f"Current nodes{info}:"
-    longest_line = len(info)
-    for node in nodes:
-        line = f"  {node.graph_node.name} -> " \
-               f"w={node.weight!r} " \
-               f"p={node.parent!r} " \
-               f"hp={node.has_parent!r} " \
-               f"iv={node.visited!r}"
-        longest_line = max(len(line), longest_line)
-        info += "\n" + line
-    info += "\n" + "=" * longest_line
-    return info
+    def check_node(self, node: Node) -> bool:
+        if self == PrintNodesMode.VISITED:
+            return node.visited
+        elif self == PrintNodesMode.HAS_PARENT:
+            return node.has_parent
+        else:
+            return self == PrintNodesMode.ALL
 
 
 def get_path_string(path: [Node]) -> str:
@@ -110,56 +34,25 @@ def get_path_string(path: [Node]) -> str:
     return result
 
 
-def path_iterator(node: Node) -> typing.Iterator[Node]:
-    while node is not None:
-        yield node
-        if node == node.parent:
-            break
-        node = node.parent
-
-
 def get_path(graph: Graph, start: str, destination: str) -> [Node]:
-    # nodes array
-    nodes: [Node] = [Node(graph_node) for graph_node in graph.nodes]
-    node_map: {GraphNode, Node} = {node.graph_node: node for node in nodes}
-    start_node: GraphNode = graph.node_from_label(start)
-    destination_node: GraphNode = graph.node_from_label(destination)
-    LOGGER.info(f"Try to find path from {start} ({start_node.index}) to {destination} ({destination_node.index})")
-
-    start_node: Node = node_map[start_node]
-    destination_node: Node = node_map[destination_node]
-    start_node.try_update_target(start_node, 0)
-
-    current_node: Node = start_node
-    while current_node is not None:
-        current_node.set_as_visited()
-        if current_node == destination_node:
-            break
-        for graph_edge in graph.get_adjacent_edges(current_node.graph_node):
-            node_start: Node = node_map[graph_edge.start_node]
-            node_end: Node = node_map[graph_edge.end_node]
-            node_end.try_update_target(node_start, graph_edge.weight)
-
-        LOGGER.debug(print_nodes(nodes))
-
-        # niedriges Gewicht, nicht besucht, hat Eltern
-        current_node = get_next_node(nodes)
-
-        LOGGER.info(f"next_node: {current_node}")
-
-    path: [Node] = list(path_iterator(destination_node))
-    path.reverse()
-
-    return path
+    solver: Solver = Solver(graph, start, destination)
+    solver.run()
+    return solver.path
 
 
-def print_path(graph: typing.Union[list[list[int]], Graph], start: str, destination: str):
+def print_path(graph: typing.Union[list[list[int]], Graph], start: str, destination: str, show_visited: PrintNodesMode = PrintNodesMode.NONE):
     if not isinstance(graph, Graph):
         try:
             graph = Graph.from_adjacent_matrix(graph)
         except MalformedGraphException as e:
             LOGGER.error(str(e))
             return
-    path: [Node] = get_path(graph, start, destination)
-    path_string: str = get_path_string(path)
+    solver: Solver = Solver(graph, start, destination)
+    solver.run()
+    path_string: str = get_path_string(solver.path)
     print(path_string)
+
+    print()
+    if show_visited is not None:
+        info = Node.print_nodes(node for node in solver.nodes if show_visited.check_node(node))
+        print(info)

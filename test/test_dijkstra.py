@@ -1,6 +1,7 @@
 import unittest
 
 import dijkstra
+import weighted_node
 from graph import Graph
 
 
@@ -24,7 +25,7 @@ class MyTestCase(unittest.TestCase):
 
         # when
         graph: [[int]] = Graph.from_adjacent_matrix(matrix)
-        node_path: [dijkstra.Node] = dijkstra.get_path(graph, start, destination)
+        node_path: [weighted_node.Node] = dijkstra.get_path(graph, start, destination)
 
         actual_path: [chr] = [node.label for node in node_path]
 
