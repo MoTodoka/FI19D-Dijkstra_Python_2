@@ -109,17 +109,20 @@ def get_adjacent_edges(adjacency_matrix: [[int]], nodes: [Node], node: Node) -> 
     return result
 
 
-def print_nodes(nodes: list[Node], info: str = "") -> str:
+def print_nodes(nodes: [Node], info: str = "") -> str:
     if info:
         info = f" ({info})"
     info = f"Current nodes{info}:"
+    longest_line = len(info)
     for node in nodes:
-        info += f"\n  {node.index} ({node.label}) -> " \
-                f"w={node.weight!r} " \
-                f"p={node.parent!r} " \
-                f"hp={node.has_parent!r} " \
-                f"iv={node.visited!r}"
-    info += "\n" + "=" * len(info)
+        line = f"  {node.index} ({node.label}) -> " \
+               f"w={node.weight!r} " \
+               f"p={node.parent!r} " \
+               f"hp={node.has_parent!r} " \
+               f"iv={node.visited!r}"
+        longest_line = max(len(line), longest_line)
+        info += "\n" + line
+    info += "\n" + "=" * longest_line
     return info
 
 
