@@ -84,14 +84,6 @@ class UnnamedNode(Node):
     pass
 
 
-def verify_matrix(matrix):
-    node_count: int = len(matrix)
-    if any(len(row) != node_count for row in matrix):
-        raise MalformedGraphException("adjacent matrix is not a square")
-    if any(matrix[i][i] for i in range(node_count)):
-        raise MalformedGraphException("not all self referencing node are zero")
-
-
 def get_next_node(nodes: list[Node]) -> Optional[Node]:
     filtered_node_generator = (node for node in nodes if node.has_parent and not node.visited)
     try:
@@ -99,14 +91,6 @@ def get_next_node(nodes: list[Node]) -> Optional[Node]:
     except ValueError:
         # Returned, when the generator is empty
         return None
-
-
-def get_adjacent_edges(adjacency_matrix: [[int]], nodes: [Node], node: Node) -> list[Edge]:
-    result: list[Edge] = list()
-    for idx, edge_weight in enumerate(adjacency_matrix[node.index]):
-        if edge_weight > 0:
-            result.append(Edge(node, nodes[idx], edge_weight))
-    return result
 
 
 def print_nodes(nodes: [Node], info: str = "") -> str:
@@ -179,12 +163,10 @@ def get_path(graph: Graph, start: str, destination: str) -> [Node]:
 def print_path(graph: typing.Union[list[list[int]], Graph], start: str, destination: str):
     if not isinstance(graph, Graph):
         try:
-            verify_matrix(graph)
+            graph = Graph.from_adjacent_matrix(graph)
         except MalformedGraphException as e:
             LOGGER.error(str(e))
             return
-        else:
-            graph = Graph.from_adjacent_matrix(graph)
     path: [Node] = get_path(graph, start, destination)
     path_string: str = get_path_string(path)
     print(path_string)

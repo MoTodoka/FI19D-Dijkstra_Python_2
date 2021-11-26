@@ -1,6 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 
+from MalformedGraphException import MalformedGraphException
+
 
 class Graph:
     _nodes: tuple[GraphNode]
@@ -12,7 +14,12 @@ class Graph:
 
     @staticmethod
     def from_adjacent_matrix(adjacent_matrix: [[int]]) -> Graph:
-        nodes: tuple[GraphNode] = tuple(GraphNode.create(idx) for idx in range(len(adjacent_matrix)))
+        node_count: int = len(adjacent_matrix)
+        if any(len(row) != node_count for row in adjacent_matrix):
+            raise MalformedGraphException("adjacent matrix is not a square")
+        if any(adjacent_matrix[i][i] for i in range(node_count)):
+            raise MalformedGraphException("not all self referencing node are zero")
+        nodes: tuple[GraphNode] = tuple(GraphNode.create(idx) for idx in range(node_count))
         edges: [GraphEdge] = []
         for start_idx, edges_row in enumerate(adjacent_matrix):
             start_node: GraphNode = nodes[start_idx]
