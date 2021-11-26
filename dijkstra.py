@@ -12,21 +12,6 @@ from graph import GraphNode, Graph
 LOGGER = logging.getLogger("root")
 
 
-@dataclass
-class Edge:
-    node_start: Node
-    node_target: Node
-    weight: int
-
-    def try_update_target(self) -> None:
-        if not self.node_target.has_parent or self.node_start.weight + self.weight < self.node_target.weight:
-            self.node_target._parent = self.node_start
-            total_weight: int = self.weight
-            if self.node_start != self.node_target:
-                total_weight += self.node_start.weight
-            self.node_target._weight = total_weight
-
-
 class Node:
     _parent: Optional[Node] = None
     _weight: int = math.inf
@@ -74,6 +59,14 @@ class Node:
 
     def __repr__(self) -> str:
         return str(self)
+
+    def try_update_target(self, node_start: Node, weight: int) -> None:
+        if not self.has_parent or node_start.weight + weight < self.weight:
+            self._parent = node_start
+            total_weight: int = weight
+            if node_start != self:
+                total_weight += node_start.weight
+            self._weight = total_weight
 
     @staticmethod
     def get_index_from_label(label: chr):
@@ -135,7 +128,7 @@ def get_path(graph: Graph, start: str, destination: str) -> [Node]:
 
     start_node: Node = node_map[start_node]
     destination_node: Node = node_map[destination_node]
-    Edge(start_node, start_node, 0).try_update_target()
+    start_node.try_update_target(start_node, 0)
 
     current_node: Node = start_node
     while current_node is not None:
@@ -145,7 +138,7 @@ def get_path(graph: Graph, start: str, destination: str) -> [Node]:
         for graph_edge in graph.get_adjacent_edges(current_node.graph_node):
             node_start: Node = node_map[graph_edge.start_node]
             node_end: Node = node_map[graph_edge.end_node]
-            Edge(node_start, node_end, graph_edge.weight).try_update_target()
+            node_end.try_update_target(node_start, graph_edge.weight)
 
         LOGGER.debug(print_nodes(nodes))
 
