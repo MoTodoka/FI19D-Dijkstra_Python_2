@@ -40,7 +40,11 @@ def get_path(graph: Graph, start: str, destination: str) -> [Node]:
     return solver.path
 
 
-def print_path(graph: typing.Union[list[list[int]], Graph], start: str, destination: str, show_visited: PrintNodesMode = PrintNodesMode.NONE):
+def print_path(graph: typing.Union[list[list[int]], Graph],
+               start: str,
+               destination: str,
+               show_visited: PrintNodesMode = PrintNodesMode.NONE,
+               astar_mode: bool = False):
     if not isinstance(graph, Graph):
         try:
             graph = Graph.from_adjacent_matrix(graph)
@@ -48,6 +52,7 @@ def print_path(graph: typing.Union[list[list[int]], Graph], start: str, destinat
             LOGGER.error(str(e))
             return
     solver: Solver = Solver(graph, start, destination)
+    solver.astar_mode = astar_mode
     solver.run()
     path_string: str = get_path_string(solver.path)
     print(path_string)

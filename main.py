@@ -22,6 +22,7 @@ if __name__ == "__main__":
                            help="Determines the type of the file",
                            choices=["csv", "eve", "json", "fileaware"],
                            default="fileaware")
+    argparser.add_argument("-a", "--astar", action="store_true")
     node_table_group = argparser.add_mutually_exclusive_group()
     node_table_group.add_argument("-n", "--print-visited-nodes", action="store_true")
     node_table_group.add_argument("--print-nodes-with-parents", action="store_true")
@@ -67,4 +68,4 @@ if __name__ == "__main__":
     else:
         show_visited = dijkstra.PrintNodesMode.NONE
 
-    dijkstra.print_path(graph, start, destination, show_visited)
+    dijkstra.print_path(graph, start, destination, show_visited, args.astar)

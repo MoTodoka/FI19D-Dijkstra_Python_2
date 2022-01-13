@@ -14,12 +14,21 @@ class Solver:
     _nodes: Optional[tuple[Node]]
     _start_graph_node: GraphNode
     _destination_graph_node: GraphNode
+    _astar_mode: bool = False
 
     def __init__(self, graph: Graph, start: str, destination: str):
         self._graph = graph
         self._nodes = None
         self._start_graph_node = graph.node_from_label(start)
         self._destination_graph_node = graph.node_from_label(destination)
+
+    @property
+    def astar_mode(self) -> bool:
+        return self._astar_mode
+
+    @astar_mode.setter
+    def astar_mode(self, value: bool) -> None:
+        self._astar_mode = value
 
     def run(self) -> bool:
         if self._nodes is not None:
@@ -83,10 +92,18 @@ class Solver:
                 return node
         return None
 
+    @staticmethod
+    def _astar_weight(node: Node) -> float:
+        return node.weight + node.distance
+
+    @staticmethod
+    def _dijkstra_weight(node: Node) -> float:
+        return node.weight
+
     def _get_next_node(self) -> Optional[Node]:
         filtered_node_generator = (node for node in self._nodes if node.has_parent and not node.visited)
         try:
-            return min(filtered_node_generator, key=lambda n: n.weight)
+            return min(filtered_node_generator, key=Solver._astar_weight if self.astar_mode else Solver._dijkstra_weight)
         except ValueError:
             # Returned, when the generator is empty
             return None
