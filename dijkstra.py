@@ -57,8 +57,8 @@ def print_path(graph: typing.Union[list[list[int]], Graph],
     path_string: str = get_path_string(solver.path)
     print(path_string)
 
-    print()
-    if show_visited is not None:
+    if show_visited != PrintNodesMode.NONE:
+        print()
         visited_nodes: int = 0
         nodes_with_parent: int = 0
         for node in solver.nodes:
