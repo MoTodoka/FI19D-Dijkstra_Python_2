@@ -9,7 +9,7 @@ from graph import Graph
 from weighted_node import Node
 from solver import Solver
 
-LOGGER = logging.getLogger("root")
+LOGGER = logging.getLogger("dijkstra")
 
 
 class PrintNodesMode(Enum):

@@ -1,9 +1,27 @@
 [loggers]
-keys=root
+keys=root,main,dijkstra,solver
 
 [logger_root]
+level=NOTSET
+handlers=screen,file
+
+[logger_main]
+qualname=main
 level=DEBUG
 handlers=screen,file
+propagate=0
+
+[logger_dijkstra]
+qualname=dijkstra
+level=DEBUG
+handlers=screen,file
+propagate=0
+
+[logger_solver]
+qualname=solver
+level=DEBUG
+handlers=screen,file
+propagate=0
 
 [formatters]
 keys=simple,complex
@@ -22,7 +40,7 @@ class=handlers.TimedRotatingFileHandler
 interval=midnight
 backupCount=5
 formatter=complex
-level=DEBUG
+level=INFO
 args=('log/dijkstra.log',)
 
 [handler_screen]
