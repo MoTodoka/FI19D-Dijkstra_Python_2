@@ -17,6 +17,7 @@ class PrintNodesMode(Enum):
     VISITED = auto()
     HAS_PARENT = auto()
     ALL = auto()
+    SUM = auto()
 
     def check_node(self, node: Node) -> bool:
         if self == PrintNodesMode.VISITED:
