@@ -84,4 +84,4 @@ class GraphNode:
 class GraphEdge:
     start_node: GraphNode
     end_node: GraphNode
-    weight: int = field(default=0)
+    weight: float

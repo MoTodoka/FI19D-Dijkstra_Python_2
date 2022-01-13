@@ -20,7 +20,7 @@ def read_json_node(filename: str) -> [[int]]:
     return matrix
 
 
-def read_json_eve(filename: str) -> graph.Graph:
+def read_json_eve(filename: str, euclidean_distance: bool) -> graph.Graph:
     with open(filename, "r") as f:
         node_vertices = json.load(f)
 
@@ -29,7 +29,10 @@ def read_json_eve(filename: str) -> graph.Graph:
     node_map = {node.index: node for node in nodes}
     edges: [graph.GraphEdge] = []
     for jump in node_vertices["jumps"]:
-        edges.append(graph.GraphEdge(node_map[jump["from"]], node_map[jump["to"]], 1))
+        start_node: graph.GraphNode = node_map[jump["from"]]
+        end_node: graph.GraphNode = node_map[jump["to"]]
+        distance: float = start_node.distance(end_node) if euclidean_distance else 1
+        edges.append(graph.GraphEdge(start_node, end_node, distance))
 
     return graph.Graph(nodes, edges)
 

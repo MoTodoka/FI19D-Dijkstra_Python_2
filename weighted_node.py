@@ -8,7 +8,7 @@ from graph import GraphNode
 
 class Node:
     _parent: Optional[Node] = None
-    _weight: int = math.inf
+    _weight: float = math.inf
     _visited: bool = False
     _graph_node: GraphNode
     _distance: float
@@ -30,7 +30,7 @@ class Node:
         return self._parent
 
     @property
-    def weight(self) -> int:
+    def weight(self) -> float:
         return self._weight
 
     @property
@@ -61,10 +61,10 @@ class Node:
     def __repr__(self) -> str:
         return str(self)
 
-    def try_update_target(self, node_start: Node, weight: int) -> None:
+    def try_update_target(self, node_start: Node, weight: float) -> None:
         if not self.has_parent or node_start.weight + weight < self.weight:
             self._parent = node_start
-            total_weight: int = weight
+            total_weight: float = weight
             if node_start != self:
                 total_weight += node_start.weight
             self._weight = total_weight

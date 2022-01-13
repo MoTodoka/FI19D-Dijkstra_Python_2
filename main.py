@@ -1,3 +1,4 @@
+import functools
 import logging
 import argparse
 import os
@@ -20,7 +21,7 @@ if __name__ == "__main__":
     argparser.add_argument("destination")
     argparser.add_argument("--type",
                            help="Determines the type of the file",
-                           choices=["csv", "eve", "json", "fileaware"],
+                           choices=["csv", "eve", "evedist", "json", "fileaware"],
                            default="fileaware")
     argparser.add_argument("-a", "--astar", action="store_true")
     node_table_group = argparser.add_mutually_exclusive_group()
@@ -47,8 +48,8 @@ if __name__ == "__main__":
             LOGGER.warning("Unknown file type, defaulting to JSON")
     elif args.type == "csv":
         selected_loader = loader.read_csv_adjacent
-    elif args.type == "eve":
-        selected_loader = loader.read_json_eve
+    elif args.type == "eve" or args.type == "evedist":
+        selected_loader = functools.partial(loader.read_json_eve, euclidean_distance=args.type == "evedist")
     elif args.type == "json":
         selected_loader = loader.read_json_node
     else:
