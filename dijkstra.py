@@ -54,5 +54,19 @@ def print_path(graph: typing.Union[list[list[int]], Graph], start: str, destinat
 
     print()
     if show_visited is not None:
+        visited_nodes: int = 0
+        nodes_with_parent: int = 0
+        for node in solver.nodes:
+            if node.visited:
+                visited_nodes += 1
+            if node.has_parent:
+                nodes_with_parent += 1
+        node_count = len(solver.nodes)
+        summary: str = f"{node_count} Nodes"
+        if node_count > 0:
+            summary += f": {visited_nodes} visited ({visited_nodes/node_count:.1%}), {nodes_with_parent} have a parent ({nodes_with_parent/node_count:.1%})"
+        print(summary)
+        print()
+
         info = Node.print_nodes(node for node in solver.nodes if show_visited.check_node(node))
         print(info)
