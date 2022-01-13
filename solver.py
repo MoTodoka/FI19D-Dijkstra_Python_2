@@ -24,7 +24,7 @@ class Solver:
     def run(self) -> bool:
         if self._nodes is not None:
             return self._destination_node.has_parent
-        self._nodes = tuple(Node(graph_node) for graph_node in self._graph.nodes)
+        self._nodes = tuple(Node(graph_node, self._destination_graph_node) for graph_node in self._graph.nodes)
         node_map: {GraphNode, Node} = {node.graph_node: node for node in self._nodes}
         LOGGER.info(f"Try to find path from {self._start_graph_node.name} to {self._destination_graph_node.name}")
 

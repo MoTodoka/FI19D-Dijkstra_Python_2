@@ -11,9 +11,11 @@ class Node:
     _weight: int = math.inf
     _visited: bool = False
     _graph_node: GraphNode
+    _distance: float
 
-    def __init__(self, graph_node: GraphNode):
+    def __init__(self, graph_node: GraphNode, target: GraphNode):
         self._graph_node = graph_node
+        self._distance = graph_node.distance(target)
 
     @property
     def index(self) -> int:
@@ -36,6 +38,10 @@ class Node:
         return self._visited
 
     @property
+    def distance(self) -> float:
+        return self._distance
+
+    @property
     def has_parent(self) -> bool:
         return self._parent is not None
 
@@ -49,7 +55,8 @@ class Node:
     def __str__(self) -> str:
         return f"Node[{self.graph_node.name}, " \
                f"w={self.weight}, " \
-               f"p={self.parent.index if self.has_parent else 'None'}]"
+               f"p={self.parent.index if self.has_parent else 'None'}, " \
+               f"d={self.distance}]"
 
     def __repr__(self) -> str:
         return str(self)
@@ -77,7 +84,8 @@ class Node:
                    f"w={node.weight!r} " \
                    f"p={node.parent!r} " \
                    f"hp={node.has_parent!r} " \
-                   f"iv={node.visited!r}"
+                   f"iv={node.visited!r} " \
+                   f"d={node.distance!r}"
             longest_line = max(len(line), longest_line)
             info += "\n" + line
         info += "\n" + "=" * longest_line
