@@ -24,7 +24,8 @@ def read_json_eve(filename: str) -> graph.Graph:
     with open(filename, "r") as f:
         node_vertices = json.load(f)
 
-    nodes = [graph.GraphNode(node["id"], node["name"]) for node in node_vertices["solarSystems"]]
+    nodes = [graph.GraphNode(node["id"], node["name"], (node["x"], node["y"], node["z"]))
+             for node in node_vertices["solarSystems"]]
     node_map = {node.index: node for node in nodes}
     edges: [graph.GraphEdge] = []
     for jump in node_vertices["jumps"]:

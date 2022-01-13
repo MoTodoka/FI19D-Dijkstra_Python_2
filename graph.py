@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import math
 from dataclasses import dataclass, field
 
 from MalformedGraphException import MalformedGraphException
@@ -54,10 +56,11 @@ class Graph:
 class GraphNode:
     index: int
     label: str
+    pos: tuple[float]
 
     @staticmethod
-    def create(index: int) -> GraphNode:
-        return GraphNode(index, GraphNode.get_label_from_index(index))
+    def create(index: int, pos: tuple[float] = None) -> GraphNode:
+        return GraphNode(index, GraphNode.get_label_from_index(index), pos)
 
     @staticmethod
     def get_label_from_index(index: int):
@@ -66,6 +69,15 @@ class GraphNode:
     @property
     def name(self) -> str:
         return f"{self.label} ({self.index})"
+
+    def distance_squared(self, other: GraphNode) -> float:
+        if not self.pos:
+            return 0
+        return sum((a - b) ** 2 for a, b in zip(self.pos, other.pos))
+
+    def distance(self, other: GraphNode) -> float:
+        squared: float = self.distance_squared(other)
+        return math.sqrt(squared)
 
 
 @dataclass(frozen=True)
