@@ -51,7 +51,8 @@ class Solver:
                 node_end: Node = node_map[graph_edge.end_node]
                 node_end.try_update_target(node_start, graph_edge.weight)
 
-            LOGGER.debug(Node.print_nodes(self._nodes))
+            if LOGGER.isEnabledFor(logging.DEBUG):
+                LOGGER.debug(Node.print_nodes(self._nodes))
 
             # niedriges Gewicht, nicht besucht, hat Eltern
             current_node = self._get_next_node()
