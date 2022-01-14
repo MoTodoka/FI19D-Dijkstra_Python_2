@@ -9,7 +9,7 @@ import loader
 
 def compare_dijkstra_astar_time(start, destination) -> {}:
     # given
-    graph = loader.read_json_eve("../resources/universe-pretty.json")
+    graph = loader.read_json_eve("../resources/universe-pretty.json", True)
     show_visited = dijkstra.PrintNodesMode.SUM
 
     # when
