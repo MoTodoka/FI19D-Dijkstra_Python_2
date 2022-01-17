@@ -45,9 +45,8 @@ class Solver:
             if current_node == destination_node:
                 break
             for graph_edge in self._graph.get_adjacent_edges(current_node.graph_node):
-                node_start: Node = node_map[graph_edge.start_node]
                 node_end: Node = node_map[graph_edge.end_node]
-                node_end.try_update_target(node_start, graph_edge.weight)
+                node_end.try_update_target(current_node, graph_edge.weight)
 
             if LOGGER.isEnabledFor(logging.DEBUG):
                 LOGGER.debug(Node.print_nodes(self._nodes))
