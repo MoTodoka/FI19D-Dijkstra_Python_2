@@ -1,6 +1,5 @@
 import time
 import unittest
-from pprint import pprint
 from typing import Union
 
 import dijkstra
@@ -49,7 +48,10 @@ class MyTestCase(unittest.TestCase):
             result.update(compare_dijkstra_astar_time(testcase['start'], testcase['destination']))
             result_set.append(result)
 
-        pprint(result_set)
+        for result in result_set:
+            self.assertGreater(result['duration_dijkstra'],
+                               result['duration_astar'],
+                               f"Dijkstra was quicker than A* from {result['start']} to {result['destination']}")
 
     if __name__ == '__main__':
         unittest.main()

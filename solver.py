@@ -4,12 +4,10 @@ from typing import Optional, Union, Callable
 from weighted_node import Node
 from graph import Graph, GraphNode
 
-
 LOGGER = logging.getLogger("solver")
 
 
 class Solver:
-
     _graph: Graph
     _nodes: Optional[tuple[Node]]
     _start_graph_node: GraphNode
@@ -104,7 +102,9 @@ class Solver:
     def _get_next_node(self) -> Optional[Node]:
         filtered_node_generator = (node for node in self._nodes if node.has_parent and not node.visited)
         try:
-            return min(filtered_node_generator, key=Solver._astar_weight if self.astar_mode else Solver._dijkstra_weight)
+            return min(filtered_node_generator,
+                       key=Solver._astar_weight
+                       if self.astar_mode else Solver._dijkstra_weight)
         except ValueError:
             # Returned, when the generator is empty
             return None

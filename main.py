@@ -1,10 +1,7 @@
+import argparse
 import functools
 import logging
-import argparse
 import os
-import typing
-from enum import Enum, auto
-
 from logging import config
 
 import dijkstra
@@ -15,21 +12,21 @@ logging.config.fileConfig("log/log.conf")
 LOGGER = logging.getLogger("main")
 
 if __name__ == "__main__":
-    argparser = argparse.ArgumentParser()
-    argparser.add_argument("file")
-    argparser.add_argument("start")
-    argparser.add_argument("destination")
-    argparser.add_argument("--type",
-                           help="Determines the type of the file",
-                           choices=["csv", "eve", "evedist", "json", "fileaware"],
-                           default="fileaware")
-    argparser.add_argument("-a", "--astar", action="store_true")
-    node_table_group = argparser.add_mutually_exclusive_group()
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument("file")
+    arg_parser.add_argument("start")
+    arg_parser.add_argument("destination")
+    arg_parser.add_argument("--type",
+                            help="Determines the type of the file",
+                            choices=["csv", "eve", "evedist", "json", "fileaware"],
+                            default="fileaware")
+    arg_parser.add_argument("-a", "--astar", action="store_true")
+    node_table_group = arg_parser.add_mutually_exclusive_group()
     node_table_group.add_argument("-n", "--print-visited-nodes", action="store_true")
     node_table_group.add_argument("--print-nodes-with-parents", action="store_true")
     node_table_group.add_argument("-N", "--print-all-nodes", action="store_true")
 
-    args = argparser.parse_args()
+    args = arg_parser.parse_args()
 
     if args.type == "fileaware":
         file_parts = os.path.splitext(args.file)

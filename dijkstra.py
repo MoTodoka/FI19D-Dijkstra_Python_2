@@ -70,7 +70,8 @@ def print_path(graph: typing.Union[list[list[int]], Graph],
         node_count = len(solver.nodes)
         summary: str = f"{node_count} Nodes"
         if node_count > 0:
-            summary += f": {visited_nodes} visited ({visited_nodes/node_count:.1%}), {nodes_with_parent} have a parent ({nodes_with_parent/node_count:.1%})"
+            summary += f": {visited_nodes} visited ({visited_nodes/node_count:.1%}), " \
+                       f"{nodes_with_parent} have a parent ({nodes_with_parent/node_count:.1%})"
         print(summary)
         print()
 
