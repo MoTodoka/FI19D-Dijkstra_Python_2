@@ -20,7 +20,6 @@ class MyTestCase(unittest.TestCase):
     def test_parse_json_eve(self):
         # given
         file_name: str = "universe-pretty.json"
-        expected_matrix: [[int]] = [[]]
 
         # when
         graph = loader.read_json_eve(self.resources_path + file_name, False)
@@ -32,7 +31,6 @@ class MyTestCase(unittest.TestCase):
     def test_parse_json_eve_euclidean(self):
         # given
         file_name: str = "universe-pretty.json"
-        expected_matrix: [[int]] = [[]]
 
         # when
         graph = loader.read_json_eve(self.resources_path + file_name, True)
