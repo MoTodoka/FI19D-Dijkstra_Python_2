@@ -56,10 +56,10 @@ class Graph:
 class GraphNode:
     index: int
     label: str
-    pos: tuple[float]
+    pos: tuple[float, ...]
 
     @staticmethod
-    def create(index: int, pos: tuple[float] = None) -> GraphNode:
+    def create(index: int, pos: tuple[float, ...] = None) -> GraphNode:
         return GraphNode(index, GraphNode.get_label_from_index(index), pos)
 
     @staticmethod
