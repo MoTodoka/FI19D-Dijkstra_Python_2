@@ -23,7 +23,19 @@ class MyTestCase(unittest.TestCase):
         expected_matrix: [[int]] = [[]]
 
         # when
-        graph = loader.read_json_eve(self.resources_path + file_name)
+        graph = loader.read_json_eve(self.resources_path + file_name, False)
+
+        self.assertEqual(graph.node_count, 5431, "Eve-JSON node_count")
+        self.assertEqual(graph.nodes[0].label, "Tanoo", "Eve-JSON node_count")
+        self.assertEqual(graph.nodes[141].label, "Jita", "Eve-JSON node_count")
+
+    def test_parse_json_eve_euclidean(self):
+        # given
+        file_name: str = "universe-pretty.json"
+        expected_matrix: [[int]] = [[]]
+
+        # when
+        graph = loader.read_json_eve(self.resources_path + file_name, True)
 
         self.assertEqual(graph.node_count, 5431, "Eve-JSON node_count")
         self.assertEqual(graph.nodes[0].label, "Tanoo", "Eve-JSON node_count")
